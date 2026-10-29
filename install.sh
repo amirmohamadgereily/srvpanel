@@ -476,13 +476,17 @@ app.config.update(
 )
 
 CSS = """
-:root{--bg:#0d1117;--card:#161b22;--card2:#1c222b;--line:#262d38;--text:#e6edf3;--mute:#8b98a9;--ok:#3ddc97;--warn:#f5b73b;--bad:#ff5d6c;--accent:#58a6ff}
+:root{color-scheme:dark;--bg:#0b1220;--card:#111c2d;--card2:#172438;--line:#26364b;--text:#e8eef7;--mute:#9baec4;--ok:#35d39a;--warn:#f5b942;--bad:#ff6577;--accent:#68a8ff;--shadow:0 10px 30px rgba(0,0,0,.12)}
+:root[data-theme="light"]{color-scheme:light;--bg:#f2f5fa;--card:#fff;--card2:#f5f8fc;--line:#dce4ef;--text:#1b293b;--mute:#62748b;--ok:#16845c;--warn:#a96700;--bad:#c62840;--accent:#2463d4;--shadow:0 8px 24px rgba(30,55,90,.07)}
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:14px/1.6 Tahoma,"Segoe UI","Noto Sans Arabic","DejaVu Sans",system-ui,sans-serif}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:14px/1.6 Tahoma,"Segoe UI","Noto Sans Arabic","DejaVu Sans",system-ui,sans-serif;transition:background .2s,color .2s}
+body{min-height:100vh}
+button,select,a{transition:border-color .15s,background .15s,transform .15s}
+button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 a{color:var(--accent);text-decoration:none}
 .num{direction:ltr;unicode-bidi:isolate;display:inline-block}
 .mute{color:var(--mute)}
-.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--card)}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--card);box-shadow:var(--shadow);position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}
 .brand{display:flex;align-items:center;gap:10px}
 .brand h1{font-size:17px;margin:0}
 .dot{width:10px;height:10px;border-radius:50%;background:var(--bad)}
@@ -494,7 +498,14 @@ a{color:var(--accent);text-decoration:none}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#06101c;width:100%;margin-top:16px;font-weight:bold}
 .wrap{max-width:1280px;margin:0 auto;padding:16px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;min-width:0;box-shadow:var(--shadow);transition:transform .18s,border-color .18s}
+.card:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.compact-control{display:inline;margin:0;color:var(--mute);font-size:12px}
+.grid{align-items:start}
+.btn{background:var(--card2);color:var(--text)}
+select.btn{padding:7px 8px}
+#lastUpdate{font-size:12px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 .card h2{margin:0 0 10px;font-size:15px;color:var(--mute);font-weight:normal}
 .card h2.sub{margin-top:18px}
 .big{font-size:28px;font-weight:bold;line-height:1.3}
@@ -532,14 +543,15 @@ a{color:var(--accent);text-decoration:none}
 .alert.warn{border-color:var(--warn);color:#fbe0a0;background:#2b2412}
 .auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
 .auth-card{width:100%;max-width:400px}
-.auth-card h1{margin:0 0 14px;font-size:20px}
+.auth-card h1{margin:0 0 14px;font-size:20px}.auth-tools{display:flex;justify-content:flex-end;gap:8px;margin-bottom:12px}
 label{display:block;margin:12px 0 5px;color:var(--mute)}
 input[type=password]{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card2);color:var(--text);font:inherit;direction:ltr;text-align:left}
 input:focus{outline:2px solid var(--accent);border-color:transparent}
 .auth-links{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
 form.inline{display:inline;margin:0}
 button.link{background:none;border:0;color:var(--accent);cursor:pointer;font:inherit;padding:0}
-@media (max-width:560px){.grid{grid-template-columns:1fr}.big{font-size:24px}.wrap{padding:10px}}
+@media (max-width:760px){.top{position:static;align-items:flex-start;padding:12px}.actions{gap:7px}.actions #lastUpdate{width:100%}.wrap{padding:12px}.grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}}
+@media (max-width:560px){.grid{grid-template-columns:1fr}.big{font-size:24px}.wrap{padding:10px}.brand{flex-wrap:wrap}.actions{width:100%}.actions .btn{padding:6px 9px}.compact-control{width:100%}}
 """
 
 LOGIN_TPL = """<!doctype html>
@@ -554,6 +566,7 @@ LOGIN_TPL = """<!doctype html>
 <body>
 <main class="auth">
   <div class="card auth-card">
+    <div class="auth-tools"><button class="btn" id="authLang" type="button">English</button><button class="btn" id="authTheme" type="button">☀ / ☾</button></div>
     <h1>ورود به پنل سرور</h1>
     {% if error %}<div class="alert err">{{ error }}</div>{% endif %}
     <form method="post" action="/login">
@@ -564,6 +577,7 @@ LOGIN_TPL = """<!doctype html>
     </form>
   </div>
 </main>
+<script nonce="{{ nonce }}">{{ auth_js|safe }}</script>
 </body>
 </html>"""
 
@@ -579,6 +593,7 @@ CHANGE_TPL = """<!doctype html>
 <body>
 <main class="auth">
   <div class="card auth-card">
+    <div class="auth-tools"><button class="btn" id="authLang" type="button">English</button><button class="btn" id="authTheme" type="button">☀ / ☾</button></div>
     <h1>تغییر رمز عبور</h1>
     {% if forced %}<div class="alert warn">رمز عبور فعلی یک‌بار مصرف است. برای ادامه، باید یک رمز عبور جدید تعیین کنید.</div>{% endif %}
     {% if error %}<div class="alert err">{{ error }}</div>{% endif %}
@@ -601,6 +616,7 @@ CHANGE_TPL = """<!doctype html>
     </div>
   </div>
 </main>
+<script nonce="{{ nonce }}">{{ auth_js|safe }}</script>
 </body>
 </html>"""
 
@@ -622,7 +638,14 @@ DASH_TPL = """<!doctype html>
   </div>
   <div class="actions">
     <span class="mute" id="liveText">در حال اتصال…</span>
-    <a class="btn" href="/change-password">تغییر رمز عبور</a>
+    <span class="mute" id="lastUpdate">آخرین به‌روزرسانی: —</span>
+    <label class="compact-control" for="refreshRate" id="refreshLabel">بازهٔ بروزرسانی</label>
+    <select class="btn" id="refreshRate" aria-label="Refresh interval">
+      <option value="2000">۲ ثانیه</option><option value="3000">۳ ثانیه</option><option value="5000">۵ ثانیه</option><option value="10000">۱۰ ثانیه</option>
+    </select>
+    <button class="btn" id="langToggle" type="button" aria-label="Switch language">English</button>
+    <button class="btn" id="themeToggle" type="button" aria-label="Toggle color theme">☀ / ☾</button>
+    <a class="btn" id="changePasswordLink" href="/change-password">تغییر رمز عبور</a>
     <form method="post" action="/logout">
       <input type="hidden" name="csrf_token" value="{{ csrf }}">
       <button class="btn" type="submit">خروج</button>
@@ -745,9 +768,9 @@ DASH_JS = r"""
   function fmtUptime(s) {
     var d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60);
     var parts = [];
-    if (d) { parts.push(d + ' روز'); }
-    if (h || d) { parts.push(h + ' ساعت'); }
-    parts.push(m + ' دقیقه');
+    if (d) { parts.push(d + (currentLang() === 'fa' ? ' روز' : ' d')); }
+    if (h || d) { parts.push(h + (currentLang() === 'fa' ? ' ساعت' : ' h')); }
+    parts.push(m + (currentLang() === 'fa' ? ' دقیقه' : ' min'));
     return parts.join('، ');
   }
 
@@ -816,7 +839,7 @@ DASH_JS = r"""
     for (i = 0; i < list.length; i++) {
       c = el('div', 'core');
       row = el('div', 'row');
-      row.appendChild(el('span', 'mute', 'هسته ' + (i + 1)));
+      row.appendChild(el('span', 'mute', (currentLang() === 'fa' ? 'هسته ' : 'Core ') + (i + 1)));
       row.appendChild(el('span', 'num', list[i].toFixed(0) + '%'));
       c.appendChild(row);
       c.appendChild(barEl(list[i]));
@@ -828,7 +851,7 @@ DASH_JS = r"""
     var box = $('disks'), i, d, wrap, head;
     clear(box);
     if (!list.length) {
-      box.appendChild(el('div', 'mute', 'فایل‌سیستمی یافت نشد.'));
+      box.appendChild(el('div', 'mute', currentLang() === 'fa' ? 'فایل‌سیستمی یافت نشد.' : 'No filesystems found.'));
       return;
     }
     for (i = 0; i < list.length; i++) {
@@ -859,7 +882,7 @@ DASH_JS = r"""
 
   function setLive(ok) {
     $('live').className = ok ? 'dot on' : 'dot';
-    set('liveText', ok ? 'زنده (هر ۲ ثانیه)' : 'قطع ارتباط…');
+    set('liveText', ok ? (currentLang() === 'fa' ? 'زنده (هر ' + (refreshMs / 1000).toLocaleString('fa-IR') + ' ثانیه)' : 'Live (every ' + refreshMs / 1000 + ' seconds)') : (currentLang() === 'fa' ? 'قطع ارتباط…' : 'Connection lost…'));
   }
 
   function render(d) {
@@ -909,6 +932,67 @@ DASH_JS = r"""
     renderProcs('topMem', d.top_mem);
   }
 
+  var refreshMs = 2000;
+  var lastSuccess = null;
+  var translations = {
+    'پنل منابع سرور':'Server Resource Panel','در حال اتصال…':'Connecting…','تغییر رمز عبور':'Change password','خروج':'Log out',
+    'پردازنده (CPU)':'Processor (CPU)','میانگین بار (۱، ۵، ۱۵ دقیقه)':'Load average (1, 5, 15 min)','دمای پردازنده':'CPU temperature','تعداد هسته‌ها':'CPU cores',
+    'حافظه (RAM)':'Memory (RAM)','استفاده‌شده':'Used','آزاد':'Free','کل':'Total','حافظه مبادله (Swap)':'Swap memory',
+    'شبکه':'Network','دریافت (دانلود)':'Download','ارسال (آپلود)':'Upload','دریافت':'Download','ارسال':'Upload',
+    'مجموع دریافت‌شده از زمان بوت':'Total received since boot','مجموع ارسال‌شده از زمان بوت':'Total sent since boot','اتصال‌های فعال':'Active connections',
+    'دیسک‌ها':'Disks','سرعت خواندن':'Read speed','سرعت نوشتن':'Write speed','سیستم':'System','نام میزبان':'Hostname','سیستم‌عامل':'Operating system',
+    'هسته (Kernel)':'Kernel','زمان روشن بودن':'Uptime','کاربران واردشده':'Logged-in users',
+    'پرمصرف‌ترین پردازه‌ها (CPU)':'Top processes (CPU)','پرمصرف‌ترین پردازه‌ها (RAM)':'Top processes (RAM)',
+    'پردازه':'Process','RAM':'RAM','فایل‌سیستمی یافت نشد.':'No filesystems found.',
+    'بازهٔ بروزرسانی':'Refresh interval','آخرین به‌روزرسانی: —':'Last update: —',
+    'زنده (هر ۲ ثانیه)':'Live (every 2 seconds)','قطع ارتباط…':'Connection lost…',
+    'روز':'d','ساعت':'h','دقیقه':'min'
+  };
+  function currentLang() { try { return localStorage.getItem('srvpanel-lang') || 'fa'; } catch (_) { return 'fa'; } }
+  function currentTheme() { try { return localStorage.getItem('srvpanel-theme') || 'dark'; } catch (_) { return 'dark'; } }
+  function translateText(text, lang) {
+    if (lang === 'fa') return text;
+    if (translations[text]) return translations[text];
+    return text;
+  }
+  function applyLanguage(lang) {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
+    var nodes = document.querySelectorAll('h1,h2,label,.kv span:first-child,.legend span,thead th,.btn:not(select):not(#langToggle):not(#themeToggle),#liveText,#lastUpdate');
+    nodes.forEach(function (node) {
+      if (node.id === 'lastUpdate') {
+        node.textContent = lang === 'fa' ? 'آخرین به‌روزرسانی: ' + (lastSuccess ? new Date(lastSuccess).toLocaleTimeString('fa-IR') : '—') :
+          'Last update: ' + (lastSuccess ? new Date(lastSuccess).toLocaleTimeString('en-GB') : '—');
+      } else if (!node.dataset.originalText) {
+        node.dataset.originalText = node.textContent.trim();
+        node.textContent = translateText(node.dataset.originalText, lang);
+      } else {
+        node.textContent = translateText(node.dataset.originalText, lang);
+      }
+    });
+    var sel = $('refreshRate');
+    if (sel) Array.prototype.forEach.call(sel.options, function (o) {
+      o.textContent = lang === 'fa' ? ({'2000':'۲ ثانیه','3000':'۳ ثانیه','5000':'۵ ثانیه','10000':'۱۰ ثانیه'}[o.value]) : o.value / 1000 + (o.value === '2000' ? ' seconds' : ' seconds');
+    });
+    set('langToggle', lang === 'fa' ? 'English' : 'فارسی');
+    document.title = lang === 'fa' ? 'پنل منابع سرور' : 'Server Resource Panel';
+    try { localStorage.setItem('srvpanel-lang', lang); } catch (_) {}
+    renderDirectionDependent();
+  }
+  function renderDirectionDependent() {
+    var lang = currentLang();
+    var label = $('refreshLabel');
+    if (label) label.textContent = lang === 'fa' ? 'بازهٔ بروزرسانی' : 'Refresh interval';
+    if (lastSuccess) {
+      var d = new Date(lastSuccess);
+      set('lastUpdate', (lang === 'fa' ? 'آخرین به‌روزرسانی: ' : 'Last update: ') + d.toLocaleTimeString(lang === 'fa' ? 'fa-IR' : 'en-GB'));
+    }
+  }
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    set('themeToggle', theme === 'dark' ? '☀ Light' : '☾ Dark');
+    try { localStorage.setItem('srvpanel-theme', theme); } catch (_) {}
+  }
   function poll() {
     var ctl = new AbortController();
     var timer = setTimeout(function () { ctl.abort(); }, 6000);
@@ -924,16 +1008,70 @@ DASH_JS = r"""
       if (!r.ok) { throw new Error('http ' + r.status); }
       return r.json();
     }).then(function (d) {
-      if (d) { render(d); setLive(true); }
+      if (d) { render(d); lastSuccess = Date.now(); setLive(true); renderDirectionDependent(); }
     }).catch(function () {
       clearTimeout(timer);
       setLive(false);
     }).then(function () {
-      setTimeout(poll, 2000);
+      setTimeout(poll, refreshMs);
     });
   }
 
+  var langButton = $('langToggle');
+  if (langButton) langButton.addEventListener('click', function () { applyLanguage(currentLang() === 'fa' ? 'en' : 'fa'); });
+  var themeButton = $('themeToggle');
+  if (themeButton) themeButton.addEventListener('click', function () { applyTheme(currentTheme() === 'dark' ? 'light' : 'dark'); });
+  var refreshSelect = $('refreshRate');
+  if (refreshSelect) {
+    refreshSelect.value = '2000';
+    refreshSelect.addEventListener('change', function () { refreshMs = Math.max(2000, Math.min(10000, Number(refreshSelect.value) || 2000)); });
+  }
+  applyTheme(currentTheme());
+  applyLanguage(currentLang());
   poll();
+})();
+"""
+
+
+AUTH_JS = r"""
+(function () {
+  'use strict';
+  var map = {
+    'ورود به پنل سرور':'Sign in to server panel','رمز عبور':'Password','ورود':'Sign in',
+    'تغییر رمز عبور':'Change password','رمز عبور فعلی':'Current password',
+    'رمز عبور جدید (حداقل ۸ نویسه)':'New password (at least 8 characters)',
+    'تکرار رمز عبور جدید':'Confirm new password','ذخیره رمز جدید':'Save new password',
+    'بازگشت به داشبورد':'Back to dashboard','خروج':'Log out',
+    'رمز عبور فعلی یک‌بار مصرف است. برای ادامه، باید یک رمز عبور جدید تعیین کنید.':'This is a one-time password. Set a new password to continue.',
+    'رمز عبور نادرست است.':'Incorrect password.','رمز عبور فعلی نادرست است.':'The current password is incorrect.',
+    'رمز عبور جدید باید حداقل ۸ نویسه باشد.':'The new password must be at least 8 characters.',
+    'تکرار رمز عبور جدید با رمز جدید یکسان نیست.':'The password confirmation does not match.',
+    'رمز عبور جدید باید با رمز فعلی متفاوت باشد.':'The new password must differ from the current password.',
+    'درخواست نامعتبر است.':'Invalid request.','بازگشت':'Go back'
+  };
+  function lang() { try { return localStorage.getItem('srvpanel-lang') || 'fa'; } catch (_) { return 'fa'; } }
+  function theme() { try { return localStorage.getItem('srvpanel-theme') || 'dark'; } catch (_) { return 'dark'; } }
+  function applyLang(v) {
+    document.documentElement.lang = v;
+    document.documentElement.dir = v === 'fa' ? 'rtl' : 'ltr';
+    document.querySelectorAll('h1,label,button,a,.alert').forEach(function (e) {
+      if (e.id === 'authLang' || e.id === 'authTheme') return;
+      if (!e.dataset.faText) e.dataset.faText = e.textContent.trim();
+      e.textContent = v === 'en' ? (map[e.dataset.faText] || e.dataset.faText) : e.dataset.faText;
+    });
+    document.title = v === 'en' ? (document.getElementById('current') ? 'Change password | Server Panel' : 'Sign in | Server Panel') :
+      (document.getElementById('current') ? 'تغییر رمز عبور | پنل سرور' : 'ورود | پنل سرور');
+    document.getElementById('authLang').textContent = v === 'fa' ? 'English' : 'فارسی';
+    try { localStorage.setItem('srvpanel-lang', v); } catch (_) {}
+  }
+  function applyTheme(v) {
+    document.documentElement.setAttribute('data-theme', v);
+    document.getElementById('authTheme').textContent = v === 'dark' ? '☀ Light' : '☾ Dark';
+    try { localStorage.setItem('srvpanel-theme', v); } catch (_) {}
+  }
+  document.getElementById('authLang').addEventListener('click', function () { applyLang(lang() === 'fa' ? 'en' : 'fa'); });
+  document.getElementById('authTheme').addEventListener('click', function () { applyTheme(theme() === 'dark' ? 'light' : 'dark'); });
+  applyTheme(theme()); applyLang(lang());
 })();
 """
 
@@ -955,7 +1093,7 @@ def client_ip():
 
 
 def render(tpl, **ctx):
-    return render_template_string(tpl, css=CSS, nonce=g.nonce, csrf=csrf_token(), **ctx)
+    return render_template_string(tpl, css=CSS, nonce=g.nonce, csrf=csrf_token(), auth_js=AUTH_JS, **ctx)
 
 
 def login_required(view):
